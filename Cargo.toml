@@ -4,3 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+polars = { version = "0.39.2", features = [
+  "lazy",
+  "test",
+  "parquet",
+  "ndarray",
+  "diff",
+  "is_in",
+  "serde",
+  "avx512",
+] }
