@@ -1,57 +1,5 @@
-use polars::chunked_array::cast;
 use polars::error::PolarsResult as Result;
 use polars::prelude::*;
-
-macro_rules! assert_eq_fl {
-    ($left:expr, $right:expr) => {
-        let d = ($left as f64 - $right as f64).abs();
-        assert!(
-            d < 0.00001,
-            "Expressions {} and {} differ by {}",
-            $left,
-            $right,
-            d
-        );
-    };
-    ($left:expr, $right:expr, $tol:expr) => {
-        let d = ($left as f64 - $right as f64).abs();
-        assert!(
-            d < $tol,
-            "Expressions {} and {} differ by {}",
-            $left,
-            $right,
-            d
-        );
-    };
-}
-
-#[macro_export]
-macro_rules! assert_sr_close {
-    ($left:expr, $right:expr) => {
-        assert_eq!($left.len(), $right.len());
-        let diffs = ($left - $right).abs()?;
-        let uneq = diffs.gt(0.0001)?;
-        assert!(
-            &uneq.filter(&uneq)?.len() == &0,
-            "Expressions {:?} and {:?} differ by {:?} ",
-            $left.filter(&uneq),
-            $right.filter(&uneq),
-            diffs.filter(&uneq)
-        );
-    };
-    ($left:expr, $right:expr, $tol:expr) => {
-        assert_eq!($left.len(), $right.len());
-        let diffs = ($left - $right).abs()?;
-        let uneq = diffs.gt($tol)?;
-        assert!(
-            &uneq.filter(&uneq)?.len() == &0,
-            "Expressions {:?} and {:?} differ by {:?} ",
-            $left.filter(&uneq),
-            $right.filter(&uneq),
-            diffs.filter(&uneq)
-        );
-    };
-}
 
 pub fn gini_impurity(data: LazyFrame, target_name: &str) -> Result<f64> {
     let col_name = data.schema()?.iter_names().next().unwrap().clone();
@@ -60,16 +8,13 @@ pub fn gini_impurity(data: LazyFrame, target_name: &str) -> Result<f64> {
         .group_by([target_name])
         .agg([col(&col_name).count().alias("counts")]);
 
-    println!("{:?}", lazy_counts.clone().collect()?);
     let lazy_probs = lazy_counts
         .with_column(col("counts").alias("total").sum())
         .with_column((cast(col("counts"), DataType::Float64) / col("total")).alias("prob"))
         .with_column(col("prob").alias("prob_sq") * col("prob"));
-    println!("{:?}", lazy_probs.clone().collect()?);
     let computed_probs = lazy_probs.select([col("prob_sq")]).sum()?.collect()?;
 
-    println!("{}", &computed_probs);
-    let val = computed_probs.get(0).unwrap().get(0).unwrap().clone();
+    let val = computed_probs.get(0).unwrap().first().unwrap().clone();
 
     let almost_ans = match val {
         AnyValue::Float32(f) => f as f64,
@@ -89,6 +34,8 @@ pub fn gini_impurity(data: LazyFrame, target_name: &str) -> Result<f64> {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_eq_fl;
+
     use super::*;
 
     #[test]
