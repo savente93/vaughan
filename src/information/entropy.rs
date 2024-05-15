@@ -15,17 +15,15 @@ pub fn entropy(data: LazyFrame, target_name: &str) -> Result<f64> {
     let almost_ans = match val {
         AnyValue::Float32(f) => f as f64,
         AnyValue::Float64(f) => f,
+        AnyValue::UInt8(f) => f as f64,
+        AnyValue::UInt16(f) => f as f64,
+        AnyValue::UInt32(f) => f as f64,
+        AnyValue::UInt64(f) => f as f64,
+        AnyValue::Int8(f) => f as f64,
+        AnyValue::Int16(f) => f as f64,
+        AnyValue::Int32(f) => f as f64,
+        AnyValue::Int64(f) => f as f64,
         _ => unreachable!(),
     };
     Ok(1.0 - almost_ans)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        todo!();
-    }
 }
