@@ -1,58 +1,151 @@
-use polars::error::PolarsResult as Result;
+use std::borrow::Cow;
+
+use polars::error::{ErrString, PolarsResult as Result};
 use polars::prelude::*;
 
-pub fn accuracy(prediction: Series, truth: Series) -> Result<Series> {
+pub fn compare(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
+    data.with_columns([col(&prediction_column).eq(col(&truth_column)).alias("_cmp")])
+        .with_columns(&[
+            when(col("_cmp").and(col(&truth_column)))
+                .then(lit(1))
+                .otherwise(lit(0))
+                .alias("_tp"),
+            when(col("_cmp").and(col(&truth_column).not()))
+                .then(lit(1))
+                .otherwise(lit(0))
+                .alias("_tn"),
+            when(col("_cmp").not().and(col(&truth_column)))
+                .then(lit(1))
+                .otherwise(lit(0))
+                .alias("_fp"),
+            when(col("_cmp").not().and(col(&truth_column).not()))
+                .then(lit(1))
+                .otherwise(lit(0))
+                .alias("_fn"),
+        ])
+}
+
+pub fn accuracy(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
+    let compared = compare(data, prediction_column, truth_column);
+    let num = compared
+        .select_seq(&[cast(col("_cmp"), DataType::Float32)])
+        .collect()?[0]
+        .clone();
+    let len = num.len() as f64;
+    Ok(num.mean().unwrap() / len)
+}
+
+pub fn balanced_accuracy(
+    data: LazyFrame,
+    prediction_column: &str,
+    truth_column: &str,
+) -> Result<f64> {
     todo!()
 }
-pub fn balanced_accuracy(prediction: Series, truth: Series) -> Result<Series> {
+pub fn top_k_accuracy(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
     todo!()
 }
-pub fn top_k_accuracy(prediction: Series, truth: Series) -> Result<Series> {
+pub fn average_precision(
+    data: LazyFrame,
+    prediction_column: &str,
+    truth_column: &str,
+) -> Result<f64> {
     todo!()
 }
-pub fn average_precision(prediction: Series, truth: Series) -> Result<Series> {
+pub fn neg_brier_score(
+    data: LazyFrame,
+    prediction_column: &str,
+    truth_column: &str,
+) -> Result<f64> {
     todo!()
 }
-pub fn neg_brier_score(prediction: Series, truth: Series) -> Result<Series> {
+
+pub fn f1(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
+    let data = if !data.schema()?.get_names().contains(&"_cmp") {
+        compare(data, prediction_column, truth_column)
+    } else {
+        data
+    };
+    let summed = data
+        .select(&[col("_tp").sum(), col("_fp").sum(), col("_fn")])
+        .collect()?;
+    let col = summed.get(0).unwrap();
+    let _tp = extract_numeric(&col[0])?;
+    let _fp = extract_numeric(&col[1])?;
+    let _fn = extract_numeric(&col[2])?;
+    Ok(_tp / (_tp + _fp))
+}
+pub fn neg_log_loss(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
     todo!()
 }
-pub fn f1(prediction: Series, truth: Series) -> Result<Series> {
+pub fn precisions(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
+    let data = if !data.schema()?.get_names().contains(&"_cmp") {
+        compare(data, prediction_column, truth_column)
+    } else {
+        data
+    };
+    let summed = data
+        .select(&[col("_tp").sum(), col("_fp").sum()])
+        .collect()?;
+    let col = summed.get(0).unwrap();
+    let _tp = extract_numeric(&col[0])?;
+    let _fp = extract_numeric(&col[1])?;
+    Ok(_tp / (_tp + _fp))
+}
+
+pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
+    let data = if !data.schema()?.get_names().contains(&"_cmp") {
+        compare(data, prediction_column, truth_column)
+    } else {
+        data
+    };
+    let summed = data
+        .select(&[col("_tp").sum(), col("_fn").sum()])
+        .collect()?;
+    let col = summed.get(0).unwrap();
+    let _tp = extract_numeric(&col[0])?;
+    let _fn = extract_numeric(&col[1])?;
+    Ok(_tp / (_tp + _fn))
+}
+
+fn extract_numeric(a: &AnyValue) -> Result<f64> {
+    match a {
+        AnyValue::Int8(i) => Ok(*i as f64),
+        AnyValue::Int16(i) => Ok(*i as f64),
+        AnyValue::Int32(i) => Ok(*i as f64),
+        AnyValue::Int64(i) => Ok(*i as f64),
+        AnyValue::UInt8(i) => Ok(*i as f64),
+        AnyValue::UInt16(i) => Ok(*i as f64),
+        AnyValue::UInt32(i) => Ok(*i as f64),
+        AnyValue::UInt64(i) => Ok(*i as f64),
+        AnyValue::Float32(i) => Ok(*i as f64),
+        AnyValue::Float64(i) => Ok(*i as f64),
+        _ => Err(PolarsError::SchemaMismatch(ErrString::from(format!(
+            "Value was not numeric"
+        )))),
+    }
+}
+pub fn jaccard(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
     todo!()
 }
-pub fn f1_micro(prediction: Series, truth: Series) -> Result<Series> {
+pub fn roc_auc(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
     todo!()
 }
-pub fn f1_macro(prediction: Series, truth: Series) -> Result<Series> {
+pub fn roc_auc_ov(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
     todo!()
 }
-pub fn f1_weighted(prediction: Series, truth: Series) -> Result<Series> {
+pub fn roc_auc_ovr_weighted(
+    data: LazyFrame,
+    prediction_column: &str,
+    truth_column: &str,
+) -> Result<f64> {
     todo!()
 }
-pub fn f1_sampled(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn neg_log_loss(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn precisions(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn recall(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn jaccard(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn roc_auc(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn roc_auc_ov(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn roc_auc_ovr_weighted(prediction: Series, truth: Series) -> Result<Series> {
-    todo!()
-}
-pub fn roc_auc_ovo_weighted(prediction: Series, truth: Series) -> Result<Series> {
+pub fn roc_auc_ovo_weighted(
+    data: LazyFrame,
+    prediction_column: &str,
+    truth_column: &str,
+) -> Result<f64> {
     todo!()
 }
 
