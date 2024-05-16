@@ -3,7 +3,7 @@ use polars::prelude::*;
 
 use crate::utils::extract_numeric;
 
-pub fn compare(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
+fn compare(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
     data.with_columns([cast(
         col(&prediction_column)
             .eq(col(&truth_column))
@@ -81,8 +81,6 @@ pub fn precision(data: LazyFrame, prediction_column: &str, truth_column: &str) -
     let col = summed.get(0).unwrap();
     let _tp = extract_numeric(&col[0])?;
     let _fp = extract_numeric(&col[1])?;
-    dbg!(_tp);
-    dbg!(_fp);
     Ok(_tp / (_tp + _fp))
 }
 
@@ -98,8 +96,6 @@ pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> R
     let col = summed.get(0).unwrap();
     let _tp = extract_numeric(&col[0])?;
     let _fn = extract_numeric(&col[1])?;
-    dbg!(_tp);
-    dbg!(_fn);
     Ok(_tp / (_tp + _fn))
 }
 
@@ -209,64 +205,36 @@ mod test {
         assert_eq_fl!(recall(data.lazy(), "prediction", "truth")?, 0.68);
         Ok(())
     }
-    // #[test]
-    // fn test_iris_recall_score_binary() -> Result<()> {
-    //     let data = iris_predictions_binary();
-    //     println!("{}", &data);
-    //     assert_eq_fl!(recall(data.lazy(), "prediction", "truth")?, 0.68);
-    //     Ok(())
-    //     // # Test Precision Recall and F1 Score for binary classification task
-    //     // y_true, y_pred, _ = make_prediction(binary=True)
 
-    //     // # detailed measures for each class
-    //     // p, r, f, s = precision_recall_fscore_support(y_true, y_pred, average=None)
-    //     // assert_array_almost_equal(p, [0.73, 0.85], 2)
-    //     // assert_array_almost_equal(r, [0.88, 0.68], 2)
-    //     // assert_array_almost_equal(f, [0.80, 0.76], 2)
-    //     // assert_array_equal(s, [25, 25])
+    #[test]
+    fn test_precision_recall_f_binary_positive_single_class() -> Result<()> {
+        // Test precision, recall and F-scores behave with a single positive or
+        // negative class
+        // Such a case may occur with non-stratified cross-validation
+        let df = df!(
+             "prediction" => [1,1,1,1],
+             "truth" => [1,1,1,1],
+        )?;
+        assert_eq_fl!(precision(df.clone().lazy(), "prediction", "truth")?, 1.0);
+        assert_eq_fl!(recall(df.clone().lazy(), "prediction", "truth")?, 1.0);
+        assert_eq_fl!(f1(df.clone().lazy(), "prediction", "truth")?, 1.0);
+        Ok(())
+    }
 
-    //     // # individual scoring function that can be used for grid search: in the
-    //     // # binary class case the score is the value of the measure for the positive
-    //     // # class (e.g. label == 1). This is deprecated for average != 'binary'.
-    //     // for kwargs, my_assert in [
-    //     //     ({}, assert_no_warnings),
-    //     //     ({"average": "binary"}, assert_no_warnings),
-    //     // ]:
-    //     //     ps = my_assert(precision_score, y_true, y_pred, **kwargs)
-    //     //     assert_array_almost_equal(ps, 0.85, 2)
-
-    //     //     rs = my_assert(recall_score, y_true, y_pred, **kwargs)
-    //     //     assert_array_almost_equal(rs, 0.68, 2)
-
-    //     //     fs = my_assert(f1_score, y_true, y_pred, **kwargs)
-    //     //     assert_array_almost_equal(fs, 0.76, 2)
-
-    //     //     assert_almost_equal(
-    //     //         my_assert(fbeta_score, y_true, y_pred, beta=2, **kwargs),
-    //     //         (1 + 2**2) * ps * rs / (2**2 * ps + rs),
-    //     //         2,
-    //     //     )
-    // }
-
-    // #[test]
-    // fn test_precision_recall_f_binary_single_class() -> Result<()> {
-    //     Ok(())
-    //     // # Test precision, recall and F-scores behave with a single positive or
-    //     // # negative class
-    //     // # Such a case may occur with non-stratified cross-validation
-    //     // assert 1.0 == precision_score([1, 1], [1, 1])
-    //     // assert 1.0 == recall_score([1, 1], [1, 1])
-    //     // assert 1.0 == f1_score([1, 1], [1, 1])
-    //     // assert 1.0 == fbeta_score([1, 1], [1, 1], beta=0)
-
-    //     // assert 0.0 == precision_score([-1, -1], [-1, -1])
-    //     // assert 0.0 == recall_score([-1, -1], [-1, -1])
-    //     // assert 0.0 == f1_score([-1, -1], [-1, -1])
-    //     // assert 0.0 == fbeta_score([-1, -1], [-1, -1], beta=float("inf"))
-    //     // assert fbeta_score([-1, -1], [-1, -1], beta=float("inf")) == pytest.approx(
-    //     //     fbeta_score([-1, -1], [-1, -1], beta=1e5)
-    //     // )
-    // }
+    #[test]
+    fn test_precision_recall_f_binary_negative_single_class() -> Result<()> {
+        // Test precision, recall and F-scores behave with a single positive or
+        // negative class
+        // Such a case may occur with non-stratified cross-validation
+        let df = df!(
+             "prediction" => [-1,-1,-1,-1],
+             "truth" => [-1,-1,-1,-1],
+        )?;
+        assert_eq_fl!(precision(df.clone().lazy(), "prediction", "truth")?, 1.0);
+        assert_eq_fl!(recall(df.clone().lazy(), "prediction", "truth")?, 1.0);
+        assert_eq_fl!(f1(df.clone().lazy(), "prediction", "truth")?, 1.0);
+        Ok(())
+    }
 
     // #[test]
     // fn test_precision_recall_f_extra_labels() -> Result<()> {
@@ -339,35 +307,6 @@ mod test {
     // }
 
     // #[test]
-    // fn test_average_precision_score_non_binary_class() -> Result<()> {
-    //     Ok(())
-    //     // """Test multiclass-multiouptut for `average_precision_score`."""
-    //     // y_true = np.array(
-    //     //     [
-    //     //         [2, 2, 1],
-    //     //         [1, 2, 0],
-    //     //         [0, 1, 2],
-    //     //         [1, 2, 1],
-    //     //         [2, 0, 1],
-    //     //         [1, 2, 1],
-    //     //     ]
-    //     // )
-    //     // y_score = np.array(
-    //     //     [
-    //     //         [0.7, 0.2, 0.1],
-    //     //         [0.4, 0.3, 0.3],
-    //     //         [0.1, 0.8, 0.1],
-    //     //         [0.2, 0.3, 0.5],
-    //     //         [0.4, 0.4, 0.2],
-    //     //         [0.1, 0.2, 0.7],
-    //     //     ]
-    //     // )
-    //     // err_msg = "multiclass-multioutput format is not supported"
-    //     // with pytest.raises(ValueError, match=err_msg):
-    //     //     average_precision_score(y_true, y_score, pos_label=2)
-    // }
-
-    // #[test]
     // fn test_average_precision_score_duplicate_values() -> Result<()> {
     //     Ok(())
     //     // @pytest.mark.parametrize(
@@ -432,24 +371,6 @@ mod test {
     //     //     # imperfection should come through in the end score, making it less
     //     //     # than one.
     //     //     assert average_precision_score(y_true, y_score) != 1.0
-    // }
-
-    // #[test]
-    // fn test_precision_recall_f_unused_pos_label() -> Result<()> {
-    //     Ok(())
-    //     // # Check warning that pos_label unused when set to non-default value
-    //     // # but average != 'binary'; even if data is binary.
-
-    //     // msg = (
-    //     //     r"Note that pos_label \(set to 2\) is "
-    //     //     r"ignored when average != 'binary' \(got 'macro'\). You "
-    //     //     r"may use labels=\[pos_label\] to specify a single "
-    //     //     "positive class."
-    //     // )
-    //     // with pytest.warns(UserWarning, match=msg):
-    //     //     precision_recall_fscore_support(
-    //     //         [1, 2, 1], [1, 2, 2], pos_label=2, average="macro"
-    //     //     )
     // }
 
     // #[test]
