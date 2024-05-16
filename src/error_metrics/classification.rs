@@ -1,7 +1,7 @@
-use std::borrow::Cow;
-
-use polars::error::{ErrString, PolarsResult as Result};
+use polars::error::PolarsResult as Result;
 use polars::prelude::*;
+
+use crate::utils::extract_numeric;
 
 pub fn compare(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
     data.with_columns([col(&prediction_column).eq(col(&truth_column)).alias("_cmp")])
@@ -35,31 +35,6 @@ pub fn accuracy(data: LazyFrame, prediction_column: &str, truth_column: &str) ->
     Ok(num.mean().unwrap() / len)
 }
 
-pub fn balanced_accuracy(
-    data: LazyFrame,
-    prediction_column: &str,
-    truth_column: &str,
-) -> Result<f64> {
-    todo!()
-}
-pub fn top_k_accuracy(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    todo!()
-}
-pub fn average_precision(
-    data: LazyFrame,
-    prediction_column: &str,
-    truth_column: &str,
-) -> Result<f64> {
-    todo!()
-}
-pub fn neg_brier_score(
-    data: LazyFrame,
-    prediction_column: &str,
-    truth_column: &str,
-) -> Result<f64> {
-    todo!()
-}
-
 pub fn f1(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
     let data = if !data.schema()?.get_names().contains(&"_cmp") {
         compare(data, prediction_column, truth_column)
@@ -74,9 +49,6 @@ pub fn f1(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Resul
     let _fp = extract_numeric(&col[1])?;
     let _fn = extract_numeric(&col[2])?;
     Ok(_tp / (_tp + _fp))
-}
-pub fn neg_log_loss(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    todo!()
 }
 pub fn precisions(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
     let data = if !data.schema()?.get_names().contains(&"_cmp") {
@@ -106,47 +78,6 @@ pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> R
     let _tp = extract_numeric(&col[0])?;
     let _fn = extract_numeric(&col[1])?;
     Ok(_tp / (_tp + _fn))
-}
-
-fn extract_numeric(a: &AnyValue) -> Result<f64> {
-    match a {
-        AnyValue::Int8(i) => Ok(*i as f64),
-        AnyValue::Int16(i) => Ok(*i as f64),
-        AnyValue::Int32(i) => Ok(*i as f64),
-        AnyValue::Int64(i) => Ok(*i as f64),
-        AnyValue::UInt8(i) => Ok(*i as f64),
-        AnyValue::UInt16(i) => Ok(*i as f64),
-        AnyValue::UInt32(i) => Ok(*i as f64),
-        AnyValue::UInt64(i) => Ok(*i as f64),
-        AnyValue::Float32(i) => Ok(*i as f64),
-        AnyValue::Float64(i) => Ok(*i as f64),
-        _ => Err(PolarsError::SchemaMismatch(ErrString::from(format!(
-            "Value was not numeric"
-        )))),
-    }
-}
-pub fn jaccard(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    todo!()
-}
-pub fn roc_auc(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    todo!()
-}
-pub fn roc_auc_ov(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    todo!()
-}
-pub fn roc_auc_ovr_weighted(
-    data: LazyFrame,
-    prediction_column: &str,
-    truth_column: &str,
-) -> Result<f64> {
-    todo!()
-}
-pub fn roc_auc_ovo_weighted(
-    data: LazyFrame,
-    prediction_column: &str,
-    truth_column: &str,
-) -> Result<f64> {
-    todo!()
 }
 
 // kindly provided by sklearn
