@@ -1,16 +1,29 @@
-// use polars::error::PolarsResult as Result;
-// use polars::prelude::*;
+use polars::error::PolarsResult as Result;
+use polars::prelude::*;
 
-// // pub fn rsme(prediction: Series, truth: Series) -> Result<f64> {
-// //     let df = prediction
-// //         .with_name("prediction")
-// //         .into_frame()
-// //         .with_column(truth.with_name("truth"))?;
-// //     let err = df
-// //         .select(&[(col("prediction") - col("truth")).alias("err")])?
-// //         .select(&[(col("err") * col("err")).sqrt().alias("err_sqrt")])?;
-// //     df([col("err_sqrt").mean()])?.get(0)?.first()
-// // }
+use crate::utils::extract_numeric;
+
+fn compute_error(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
+    data.select(&[(col(prediction_column) - col(truth_column)).alias("_err")])
+}
+
+pub fn mean_absolute_error(data: LazyFrame) -> Result<f64> {
+    let d = data.select(&[col("_err").abs().mean()]).collect()?;
+    extract_numeric(&d.get(0).unwrap()[0])
+}
+
+pub fn mean_squared_error(data: LazyFrame) -> Result<f64> {
+    let d = data
+        .select(&[(col("_err") * col("_err")).mean()])
+        .collect()?;
+    extract_numeric(&d.get(0).unwrap()[0])
+}
+pub fn root_mean_squared_error(data: LazyFrame) -> Result<f64> {
+    let d = data
+        .select(&[(col("_err") * col("_err")).mean()])
+        .collect()?;
+    Ok(extract_numeric(&d.get(0).unwrap()[0])?.sqrt())
+}
 
 // pub fn mae(prediction: Series, truth: Series) -> Result<f64> {
 //     todo!()
