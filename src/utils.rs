@@ -1,5 +1,3 @@
-pub mod testing;
-
 use polars::error::{ErrString, PolarsResult as Result};
 use polars::prelude::*;
 pub fn extract_numeric(a: &AnyValue) -> Result<f64> {

@@ -49,11 +49,7 @@ pub fn matthews_correlation_coeficient(
     prediction_column: &str,
     truth_column: &str,
 ) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[
             col("_tp").sum(),
@@ -81,11 +77,7 @@ pub fn accuracy(data: LazyFrame, prediction_column: &str, truth_column: &str) ->
 }
 
 pub fn f1(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[col("_tp").sum(), col("_fp").sum(), col("_fn").sum()])
         .collect()?;
@@ -96,11 +88,7 @@ pub fn f1(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Resul
     Ok((2.0 * _tp) / ((2.0 * _tp) + _fp + _fn))
 }
 pub fn jaccard(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[
             col("_tp").sum(),
@@ -117,11 +105,7 @@ pub fn jaccard(data: LazyFrame, prediction_column: &str, truth_column: &str) -> 
     Ok((_tp + _tn) / (_tp + _tn + _fp + _fn))
 }
 pub fn precision(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[col("_tp").sum(), col("_fp").sum()])
         .collect()?;
@@ -132,11 +116,7 @@ pub fn precision(data: LazyFrame, prediction_column: &str, truth_column: &str) -
 }
 
 pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[col("_tp").sum(), col("_fn").sum()])
         .collect()?;
@@ -173,12 +153,7 @@ mod test {
         )?;
 
         let actual = compare(test.lazy(), "predictions", "truth").collect()?;
-        assert!(
-            &actual.equals(&expected),
-            "expected: {}\nactual: {}",
-            &expected,
-            &actual,
-        );
+        assert!(&actual.equals(&expected));
         Ok(())
     }
     #[test]
@@ -196,12 +171,7 @@ mod test {
         )?;
 
         let actual = compare(test.lazy(), "prediction", "truth").collect()?;
-        assert!(
-            &actual.equals(&expected),
-            "expected: {}\nactual: {}",
-            &expected,
-            &actual
-        );
+        assert!(&actual.equals(&expected));
         Ok(())
     }
     #[test]
