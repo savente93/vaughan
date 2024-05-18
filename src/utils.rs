@@ -12,7 +12,9 @@ pub fn extract_numeric(a: &AnyValue) -> Result<f64> {
         AnyValue::UInt64(i) => Ok(*i as f64),
         AnyValue::Float32(i) => Ok(*i as f64),
         AnyValue::Float64(i) => Ok(*i),
-        _ => Err(PolarsError::SchemaMismatch(ErrString::from("Value was not numeric".to_string()))),
+        _ => Err(PolarsError::SchemaMismatch(ErrString::from(
+            "Value was not numeric".to_string(),
+        ))),
     }
 }
 

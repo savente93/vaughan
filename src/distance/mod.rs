@@ -28,9 +28,7 @@ pub fn chebyshev(data: LazyFrame, left: &str, right: &str) -> Result<f64> {
     extract_numeric(&d.get(0).unwrap()[0])
 }
 pub fn hamming(data: LazyFrame, left: &str, right: &str) -> Result<f64> {
-    let d = data
-        .select(&[col(left).neq(col(right)).sum()])
-        .collect()?;
+    let d = data.select(&[col(left).neq(col(right)).sum()]).collect()?;
     extract_numeric(&d.get(0).unwrap()[0])
 }
 
