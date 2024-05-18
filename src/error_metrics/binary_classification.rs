@@ -148,7 +148,7 @@ pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> R
 
 #[cfg(test)]
 mod test {
-    use crate::{assert_eq_fl, utils::testing::iris_predictions_binary};
+    use crate::{assert_eq_fl, utils::testing::iris_skl_predictions_binary};
 
     use super::*;
 
@@ -182,8 +182,8 @@ mod test {
         Ok(())
     }
     #[test]
-    fn test_compare_iris_binary() -> Result<()> {
-        let test = iris_predictions_binary();
+    fn test_skl_compare_iris_binary() -> Result<()> {
+        let test = iris_skl_predictions_binary();
         let expected = df!(
             "prediction" => [0,0,1,1,0,0,1,1,0,0,1,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,1,0,1,0,1,0,0,1,1,0,0],
             "truth" =>      [0,0,1,1,1,0,1,0,1,0,1,0,1,1,0,0,1,0,1,0,0,1,1,0,1,0,1,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,1,0,0,1,1,1,0],
@@ -205,7 +205,7 @@ mod test {
         Ok(())
     }
     #[test]
-    fn test_simple_binary_accuracy() -> Result<()> {
+    fn test_skl_simple_binary_accuracy() -> Result<()> {
         let test = df!(
             "predictions" => [0,1,1,1,0,1],
             "truth" =>       [1,0,0,1,0,1]
@@ -232,29 +232,29 @@ mod test {
     }
 
     #[test]
-    fn test_iris_precision_score_binary() -> Result<()> {
-        let data = iris_predictions_binary().lazy();
+    fn test_skl_iris_precision_score_binary() -> Result<()> {
+        let data = iris_skl_predictions_binary().lazy();
 
         assert_eq_fl!(precision(data, "prediction", "truth")?, 0.85);
         Ok(())
     }
 
     #[test]
-    fn test_iris_f1_score_binary() -> Result<()> {
-        let data = iris_predictions_binary();
+    fn test_skl_iris_f1_score_binary() -> Result<()> {
+        let data = iris_skl_predictions_binary();
         assert_eq_fl!(f1(data.lazy(), "prediction", "truth")?, 0.7555555555555555);
         Ok(())
     }
 
     #[test]
-    fn test_iris_recall_score_binary() -> Result<()> {
-        let data = iris_predictions_binary();
+    fn test_skl_iris_recall_score_binary() -> Result<()> {
+        let data = iris_skl_predictions_binary();
         assert_eq_fl!(recall(data.lazy(), "prediction", "truth")?, 0.68);
         Ok(())
     }
 
     #[test]
-    fn test_precision_recall_f_binary_positive_single_class() -> Result<()> {
+    fn test_skl_precision_recall_f_binary_positive_single_class() -> Result<()> {
         let df = df!(
              "prediction" => [1,1,1,1],
              "truth" => [1,1,1,1],
@@ -266,7 +266,7 @@ mod test {
     }
 
     #[test]
-    fn test_precision_recall_f_binary_negative_single_class() -> Result<()> {
+    fn test_skl_precision_recall_f_binary_negative_single_class() -> Result<()> {
         let df = df!(
              "prediction" => [-1,-1,-1,-1],
              "truth" => [-1,-1,-1,-1],
@@ -278,10 +278,10 @@ mod test {
     }
 
     #[test]
-    fn test_mcc_binary() -> Result<()> {
+    fn test_skl_mcc_binary() -> Result<()> {
         assert_eq_fl!(
             matthews_correlation_coeficient(
-                iris_predictions_binary().lazy(),
+                iris_skl_predictions_binary().lazy(),
                 "prediction",
                 "truth"
             )?,
@@ -291,7 +291,7 @@ mod test {
     }
 
     #[test]
-    fn test_jaccard_score_validation_simple() -> Result<()> {
+    fn test_skl_jaccard_score_validation_simple() -> Result<()> {
         let test = df!(
             "prediction" => [1, 1, 1, 1, 0, 1],
             "truth" =>      [0, 1, 1, 1, 0, 0]
@@ -301,7 +301,7 @@ mod test {
         Ok(())
     }
     #[test]
-    fn test_jaccard_score_validation_perfect() -> Result<()> {
+    fn test_skl_jaccard_score_validation_perfect() -> Result<()> {
         let test = df!(
             "prediction" => [1, 1, 1, 1, 0, 1],
             "truth" =>      [1, 1, 1, 1, 0, 1]
@@ -311,7 +311,7 @@ mod test {
         Ok(())
     }
     #[test]
-    fn test_jaccard_score_validation_terrible() -> Result<()> {
+    fn test_skl_jaccard_score_validation_terrible() -> Result<()> {
         let test = df!(
             "prediction" => [1, 1, 1, 1, 0, 1],
             "truth" =>      [0, 0, 0, 0,1, 0]

@@ -12,7 +12,7 @@ macro_rules! assert_eq_fl {
         let d = (l as f64 - r as f64).abs();
         assert!(
             d < 0.00001,
-            "Expressions {}={} and {}={} differ by {}",
+            "Expressions {} (={}) and {} (={}) differ by {}",
             ls,
             l,
             rs,
@@ -28,7 +28,7 @@ macro_rules! assert_eq_fl {
         let r = $right;
         assert!(
             d < $tol,
-            "Expressions {}={} and {}={} differ by {}",
+            "Expressions {} (={}) and {} (={}) differ by {}",
             ls,
             l,
             rs,
@@ -76,7 +76,7 @@ pub fn iris_predictions() -> DataFrame {
     ).unwrap()
 }
 
-pub fn iris_predictions_binary() -> DataFrame {
+pub fn iris_skl_predictions_binary() -> DataFrame {
     df!(
     "prediction" => [ 0,0,1,1,0,0,1,1,0,0,1,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,1,0,1,0,1,0,0,1,1,0,0 ],
     "truth" =>      [ 0,0,1,1,1,0,1,0,1,0,1,0,1,1,0,0,1,0,1,0,0,1,1,0,1,0,1,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,1,0,0,1,1,1,0 ],
