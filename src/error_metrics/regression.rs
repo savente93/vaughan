@@ -1,5 +1,4 @@
 use polars::error::PolarsResult as Result;
-use polars::lazy::dsl::when;
 use polars::prelude::*;
 
 use crate::utils::extract_numeric;
