@@ -35,7 +35,7 @@ pub fn root_mean_squared_error(data: LazyFrame) -> Result<f64> {
 
 pub fn max_absolute_error(data: LazyFrame) -> Result<f64> {
     let d = data.select(&[col("_err").abs().max()]).collect()?;
-    Ok(extract_numeric(&d.get(0).unwrap()[0])?)
+    extract_numeric(&d.get(0).unwrap()[0])
 }
 
 pub fn mean_absolute_percentage_error(
@@ -51,7 +51,7 @@ pub fn mean_absolute_percentage_error(
             .alias("_perc_err")
             .mean()])
         .collect()?;
-    Ok(extract_numeric(&d.get(0).unwrap()[0])?)
+    extract_numeric(&d.get(0).unwrap()[0])
 }
 
 pub fn r2(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {

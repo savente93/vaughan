@@ -5,38 +5,38 @@ use crate::utils::extract_numeric;
 
 fn compare(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
     data.with_columns([cast(
-        col(&prediction_column)
-            .eq(col(&truth_column))
+        col(prediction_column)
+            .eq(col(truth_column))
             .alias("_correct"),
         DataType::Boolean,
     )])
     .with_columns(&[
         when(
-            cast(col(&prediction_column), DataType::Boolean)
+            cast(col(prediction_column), DataType::Boolean)
                 .not()
-                .and(cast(col(&truth_column), DataType::Boolean).not()),
+                .and(cast(col(truth_column), DataType::Boolean).not()),
         )
         .then(lit(1))
         .otherwise(lit(0))
         .alias("_tn"),
         when(
-            cast(col(&prediction_column), DataType::Boolean)
-                .and(cast(col(&truth_column), DataType::Boolean).not()),
+            cast(col(prediction_column), DataType::Boolean)
+                .and(cast(col(truth_column), DataType::Boolean).not()),
         )
         .then(lit(1))
         .otherwise(lit(0))
         .alias("_fp"),
         when(
-            cast(col(&prediction_column), DataType::Boolean)
+            cast(col(prediction_column), DataType::Boolean)
                 .not()
-                .and(cast(col(&truth_column), DataType::Boolean)),
+                .and(cast(col(truth_column), DataType::Boolean)),
         )
         .then(lit(1))
         .otherwise(lit(0))
         .alias("_fn"),
         when(
-            cast(col(&prediction_column), DataType::Boolean)
-                .and(cast(col(&truth_column), DataType::Boolean)),
+            cast(col(prediction_column), DataType::Boolean)
+                .and(cast(col(truth_column), DataType::Boolean)),
         )
         .then(lit(1))
         .otherwise(lit(0))

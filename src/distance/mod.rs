@@ -7,7 +7,7 @@ use polars::prelude::LazyFrame;
 
 pub fn euclidian(data: LazyFrame, left: &str, right: &str) -> Result<f64> {
     let d = data
-        .select(&[(col(&left) - col(&right)).alias("_diff")])
+        .select(&[(col(left) - col(right)).alias("_diff")])
         .select(&[(col("_diff") * col("_diff")).alias("_diff_sq")])
         .select(&[col("_diff_sq").sum()])
         .collect()?;
@@ -16,20 +16,20 @@ pub fn euclidian(data: LazyFrame, left: &str, right: &str) -> Result<f64> {
 
 pub fn manhattan(data: LazyFrame, left: &str, right: &str) -> Result<f64> {
     let d = data
-        .select(&[(col(&left) - col(&right)).abs().sum()])
+        .select(&[(col(left) - col(right)).abs().sum()])
         .collect()?;
     extract_numeric(&d.get(0).unwrap()[0])
 }
 
 pub fn chebyshev(data: LazyFrame, left: &str, right: &str) -> Result<f64> {
     let d = data
-        .select(&[(col(&left) - col(&right)).abs().max()])
+        .select(&[(col(left) - col(right)).abs().max()])
         .collect()?;
     extract_numeric(&d.get(0).unwrap()[0])
 }
 pub fn hamming(data: LazyFrame, left: &str, right: &str) -> Result<f64> {
     let d = data
-        .select(&[col(&left).neq(col(&right)).sum()])
+        .select(&[col(left).neq(col(right)).sum()])
         .collect()?;
     extract_numeric(&d.get(0).unwrap()[0])
 }
