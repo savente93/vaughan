@@ -4,5 +4,6 @@
 *.egg-info
 pixi.toml
 pixi.lock
+lcov.info
 
 
