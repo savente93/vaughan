@@ -34,7 +34,7 @@ pub fn root_mean_squared_error(data: LazyFrame) -> Result<f64> {
     Ok(extract_numeric(&d.get(0).unwrap()[0])?.sqrt())
 }
 
-pub fn max_error(data: LazyFrame) -> Result<f64> {
+pub fn max_absolute_error(data: LazyFrame) -> Result<f64> {
     let d = data.select(&[col("_err").abs().max()]).collect()?;
     Ok(extract_numeric(&d.get(0).unwrap()[0])?)
 }
@@ -138,7 +138,7 @@ mod test {
     #[test]
     fn test_skl_max_error() -> Result<()> {
         assert_eq_fl!(
-            max_error(compute_error(
+            max_absolute_error(compute_error(
                 get_skl_test_predictions().lazy(),
                 "truth",
                 "pred1"
@@ -171,99 +171,4 @@ mod test {
         );
         Ok(())
     }
-    // assert_almost_equal(
-    //     mean_squared_log_error(y_true, y_pred),
-    //     mean_squared_error(np.log(1 + y_true), np.log(1 + y_pred)),
-    // )
-    // assert_almost_equal(mean_pinball_loss(y_true, y_pred), 0.5)
-    // assert_almost_equal(mean_pinball_loss(y_true, y_pred_2), 0.5)
-    // assert_almost_equal(mean_pinball_loss(y_true, y_pred, alpha=0.4), 0.6)
-    // assert_almost_equal(mean_pinball_loss(y_true, y_pred_2, alpha=0.4), 0.4)
-    // mape = mean_absolute_percentage_error(y_true, y_pred)
-    // assert np.isfinite(mape)
-    // assert mape > 1e6
-    // assert_almost_equal(
-    //     mean_tweedie_deviance(y_true, y_pred, power=0),
-    //     mean_squared_error(y_true, y_pred),
-    // )
-    // assert_almost_equal(
-    //     d2_tweedie_score(y_true, y_pred, power=0), r2_score(y_true, y_pred)
-    // )
-    // dev_median = np.abs(y_true - np.median(y_true)).sum()
-    // assert_array_almost_equal(
-    //     d2_absolute_error_score(y_true, y_pred),
-    //     1 - np.abs(y_true - y_pred).sum() / dev_median,
-    // )
-    // alpha = 0.2
-    // pinball_loss = lambda y_true, y_pred, alpha: alpha * np.maximum(
-    //     y_true - y_pred, 0
-    // ) + (1 - alpha) * np.maximum(y_pred - y_true, 0)
-    // y_quantile = np.percentile(y_true, q=alpha * 100)
-    // assert_almost_equal(
-    //     d2_pinball_score(y_true, y_pred, alpha=alpha),
-    //     1
-    //     - pinball_loss(y_true, y_pred, alpha).sum()
-    //     / pinball_loss(y_true, y_quantile, alpha).sum(),
-    // )
-    // assert_almost_equal(
-    //     d2_absolute_error_score(y_true, y_pred),
-    //     d2_pinball_score(y_true, y_pred, alpha=0.5),
-    // )
-
-    // # Tweedie deviance needs positive y_pred, except for p=0,
-    // # p>=2 needs positive y_true
-    // # results evaluated by sympy
-    // y_true = np.arange(1, 1 + n_samples)
-    // y_pred = 2 * y_true
-    // n = n_samples
-    // assert_almost_equal(
-    //     mean_tweedie_deviance(y_true, y_pred, power=-1),
-    //     5 / 12 * n * (n**2 + 2 * n + 1),
-    // )
-    // assert_almost_equal(
-    //     mean_tweedie_deviance(y_true, y_pred, power=1), (n + 1) * (1 - np.log(2))
-    // )
-    // assert_almost_equal(
-    //     mean_tweedie_deviance(y_true, y_pred, power=2), 2 * np.log(2) - 1
-    // )
-    // assert_almost_equal(
-    //     mean_tweedie_deviance(y_true, y_pred, power=3 / 2),
-    //     ((6 * np.sqrt(2) - 8) / n) * np.sqrt(y_true).sum(),
-    // )
-    // assert_almost_equal(
-    //     mean_tweedie_deviance(y_true, y_pred, power=3), np.sum(1 / y_true) / (4 * n)
-    // )
-
-    // dev_mean = 2 * np.mean(xlogy(y_true, 2 * y_true / (n + 1)))
-    // assert_almost_equal(
-    //     d2_tweedie_score(y_true, y_pred, power=1),
-    //     1 - (n + 1) * (1 - np.log(2)) / dev_mean,
-    // )
-
-    // dev_mean = 2 * np.log((n + 1) / 2) - 2 / n * np.log(factorial(n))
-    // assert_almost_equal(
-    //     d2_tweedie_score(y_true, y_pred, power=2), 1 - (2 * np.log(2) - 1) / dev_mean
-    // )
 }
-// // TODO implement
-// pub fn mean_squared_log_error(predition: Series, truth: Series) -> Result<Series> {
-//     todo!()
-// }
-// pub fn root_mean_squared_log_error(predition: Series, truth: Series) -> Result<Series> {
-//     todo!()
-// }
-// pub fn mean_poisson_deviance(predition: Series, truth: Series) -> Result<Series> {
-//     todo!()
-// }
-// pub fn mean_gamma_deviance(predition: Series, truth: Series) -> Result<Series> {
-//     todo!()
-// }
-// pub fn d2_absolute_error_score(predition: Series, truth: Series) -> Result<Series> {
-//     todo!()
-// }
-// pub fn d2_pinball_score(predition: Series, truth: Series) -> Result<Series> {
-//     todo!()
-// }
-// pub fn d2_tweedie_score(predition: Series, truth: Series) -> Result<Series> {
-//     todo!()
-// }
