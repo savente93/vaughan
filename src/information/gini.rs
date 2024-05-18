@@ -1,6 +1,8 @@
 use polars::error::PolarsResult as Result;
 use polars::prelude::*;
 
+use crate::utils::extract_numeric;
+
 pub fn gini_impurity(data: LazyFrame, target_name: &str) -> Result<f64> {
     let col_name = data.schema()?.iter_names().next().unwrap().clone();
 
@@ -16,19 +18,7 @@ pub fn gini_impurity(data: LazyFrame, target_name: &str) -> Result<f64> {
 
     let val = computed_probs.get(0).unwrap().first().unwrap().clone();
 
-    let almost_ans = match val {
-        AnyValue::Float32(f) => f as f64,
-        AnyValue::Float64(f) => f,
-        AnyValue::UInt8(f) => f as f64,
-        AnyValue::UInt16(f) => f as f64,
-        AnyValue::UInt32(f) => f as f64,
-        AnyValue::UInt64(f) => f as f64,
-        AnyValue::Int8(f) => f as f64,
-        AnyValue::Int16(f) => f as f64,
-        AnyValue::Int32(f) => f as f64,
-        AnyValue::Int64(f) => f as f64,
-        _ => unreachable!(),
-    };
+    let almost_ans = extract_numeric(&val)?;
     Ok(1.0 - almost_ans)
 }
 
