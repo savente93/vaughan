@@ -17,3 +17,27 @@ pub fn extract_numeric(a: &AnyValue) -> Result<f64> {
         )))),
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_any_value_variats_extract_numeric() -> Result<()> {
+        assert!(extract_numeric(&AnyValue::Int8(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::Int16(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::Int32(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::Int64(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::UInt8(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::UInt16(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::UInt32(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::UInt64(2)).is_ok());
+        assert!(extract_numeric(&AnyValue::Float32(2.0)).is_ok());
+        assert!(extract_numeric(&AnyValue::Float64(2.0)).is_ok());
+
+        assert!(extract_numeric(&AnyValue::Null).is_err());
+        assert!(extract_numeric(&AnyValue::Boolean(true)).is_err());
+
+        Ok(())
+    }
+}
