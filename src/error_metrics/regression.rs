@@ -35,7 +35,7 @@ pub fn root_mean_squared_error(data: LazyFrame) -> Result<f64> {
 
 pub fn max_absolute_error(data: LazyFrame) -> Result<f64> {
     let d = data.select(&[col("_err").abs().max()]).collect()?;
-    Ok(extract_numeric(&d.get(0).unwrap()[0])?)
+    extract_numeric(&d.get(0).unwrap()[0])
 }
 
 pub fn mean_absolute_percentage_error(
@@ -44,14 +44,14 @@ pub fn mean_absolute_percentage_error(
     truth_column: &str,
 ) -> Result<f64> {
     let d = data
-        .select(&[when(col(truth_column).eq(lit(0)))
+        .select(&[when(col(truth_column).eq(lit(0.0)))
             .then(col(prediction_column))
             .otherwise(col("_err") / col(truth_column))
             .abs()
             .alias("_perc_err")
             .mean()])
         .collect()?;
-    Ok(extract_numeric(&d.get(0).unwrap()[0])?)
+    extract_numeric(&d.get(0).unwrap()[0])
 }
 
 pub fn r2(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
@@ -109,6 +109,19 @@ mod test {
     }
 
     #[test]
+    fn test_root_mean_squared_error() -> Result<()> {
+        assert_eq_fl!(
+            root_mean_squared_error(compute_error(
+                get_skl_test_predictions().lazy(),
+                "truth",
+                "pred1"
+            ))?,
+            1.0
+        );
+        Ok(())
+    }
+
+    #[test]
     fn test_skl_mean_absolute_error() -> Result<()> {
         assert_eq_fl!(
             mean_absolute_error(compute_error(
@@ -117,6 +130,19 @@ mod test {
                 "pred1"
             ))?,
             1.0
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_skl_mean_absolute_percentage_error() -> Result<()> {
+        assert_eq_fl!(
+            mean_absolute_percentage_error(
+                compute_error(get_skl_test_predictions().lazy(), "truth", "pred1"),
+                "pred1",
+                "truth"
+            )?,
+            0.02
         );
         Ok(())
     }

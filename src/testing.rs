@@ -69,6 +69,8 @@ macro_rules! assert_sr_close {
 // courtesy of scikit-learn testing suite
 // made with an svm, we don't do predictions here,
 //so just include the result as it's fairly small
+
+#[cfg_attr(coverage_nightly, coverage(off))]
 pub fn iris_predictions() -> DataFrame {
     df!(
     "prediction" => [ 2,2,1,2,2,2,0,1,2,2,2,2,0,2,2,0,2,2,2,2,1,2,2,2,0,2,0,2,1,1,2,0,2,1,0,0,0,0,2,0,2,1,0,2,0,0,0,0,1,2,2,2,0,2,2,2,0,0,2,1,2,0,2,2,0,2,2,2,2,0,2,0,2,2,2 ],
@@ -76,6 +78,7 @@ pub fn iris_predictions() -> DataFrame {
     ).unwrap()
 }
 
+#[cfg_attr(coverage_nightly, coverage(off))]
 pub fn iris_skl_predictions_binary() -> DataFrame {
     df!(
     "prediction" => [ 0,0,1,1,0,0,1,1,0,0,1,1,0,1,0,0,1,0,1,0,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,0,0,0,1,1,0,1,0,1,0,0,1,1,0,0 ],

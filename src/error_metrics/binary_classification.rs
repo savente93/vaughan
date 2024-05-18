@@ -5,38 +5,38 @@ use crate::utils::extract_numeric;
 
 fn compare(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
     data.with_columns([cast(
-        col(&prediction_column)
-            .eq(col(&truth_column))
+        col(prediction_column)
+            .eq(col(truth_column))
             .alias("_correct"),
         DataType::Boolean,
     )])
     .with_columns(&[
         when(
-            cast(col(&prediction_column), DataType::Boolean)
+            cast(col(prediction_column), DataType::Boolean)
                 .not()
-                .and(cast(col(&truth_column), DataType::Boolean).not()),
+                .and(cast(col(truth_column), DataType::Boolean).not()),
         )
         .then(lit(1))
         .otherwise(lit(0))
         .alias("_tn"),
         when(
-            cast(col(&prediction_column), DataType::Boolean)
-                .and(cast(col(&truth_column), DataType::Boolean).not()),
+            cast(col(prediction_column), DataType::Boolean)
+                .and(cast(col(truth_column), DataType::Boolean).not()),
         )
         .then(lit(1))
         .otherwise(lit(0))
         .alias("_fp"),
         when(
-            cast(col(&prediction_column), DataType::Boolean)
+            cast(col(prediction_column), DataType::Boolean)
                 .not()
-                .and(cast(col(&truth_column), DataType::Boolean)),
+                .and(cast(col(truth_column), DataType::Boolean)),
         )
         .then(lit(1))
         .otherwise(lit(0))
         .alias("_fn"),
         when(
-            cast(col(&prediction_column), DataType::Boolean)
-                .and(cast(col(&truth_column), DataType::Boolean)),
+            cast(col(prediction_column), DataType::Boolean)
+                .and(cast(col(truth_column), DataType::Boolean)),
         )
         .then(lit(1))
         .otherwise(lit(0))
@@ -49,11 +49,7 @@ pub fn matthews_correlation_coeficient(
     prediction_column: &str,
     truth_column: &str,
 ) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[
             col("_tp").sum(),
@@ -81,11 +77,7 @@ pub fn accuracy(data: LazyFrame, prediction_column: &str, truth_column: &str) ->
 }
 
 pub fn f1(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[col("_tp").sum(), col("_fp").sum(), col("_fn").sum()])
         .collect()?;
@@ -96,11 +88,7 @@ pub fn f1(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Resul
     Ok((2.0 * _tp) / ((2.0 * _tp) + _fp + _fn))
 }
 pub fn jaccard(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[
             col("_tp").sum(),
@@ -117,11 +105,7 @@ pub fn jaccard(data: LazyFrame, prediction_column: &str, truth_column: &str) -> 
     Ok((_tp + _tn) / (_tp + _tn + _fp + _fn))
 }
 pub fn precision(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[col("_tp").sum(), col("_fp").sum()])
         .collect()?;
@@ -132,11 +116,7 @@ pub fn precision(data: LazyFrame, prediction_column: &str, truth_column: &str) -
 }
 
 pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> Result<f64> {
-    let compared = if !data.schema()?.get_names().contains(&"_correct") {
-        compare(data, prediction_column, truth_column)
-    } else {
-        data
-    };
+    let compared = compare(data, prediction_column, truth_column);
     let summed = compared
         .select(&[col("_tp").sum(), col("_fn").sum()])
         .collect()?;
@@ -148,7 +128,7 @@ pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> R
 
 #[cfg(test)]
 mod test {
-    use crate::{assert_eq_fl, utils::testing::iris_skl_predictions_binary};
+    use crate::{assert_eq_fl, testing::iris_skl_predictions_binary};
 
     use super::*;
 
@@ -173,12 +153,7 @@ mod test {
         )?;
 
         let actual = compare(test.lazy(), "predictions", "truth").collect()?;
-        assert!(
-            &actual.equals(&expected),
-            "expected: {}\nactual: {}",
-            &expected,
-            &actual,
-        );
+        assert!(&actual.equals(&expected));
         Ok(())
     }
     #[test]
@@ -196,12 +171,7 @@ mod test {
         )?;
 
         let actual = compare(test.lazy(), "prediction", "truth").collect()?;
-        assert!(
-            &actual.equals(&expected),
-            "expected: {}\nactual: {}",
-            &expected,
-            &actual
-        );
+        assert!(&actual.equals(&expected));
         Ok(())
     }
     #[test]
