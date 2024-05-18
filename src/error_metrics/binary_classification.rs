@@ -128,7 +128,7 @@ pub fn recall(data: LazyFrame, prediction_column: &str, truth_column: &str) -> R
 
 #[cfg(test)]
 mod test {
-    use crate::{assert_eq_fl, utils::testing::iris_skl_predictions_binary};
+    use crate::{assert_eq_fl, testing::iris_skl_predictions_binary};
 
     use super::*;
 
