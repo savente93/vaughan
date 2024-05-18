@@ -31,7 +31,7 @@ mod tests {
     #[test]
     fn test_dummy_data_gini_impurity() -> Result<()> {
         let data = df!(
-            "day" => [1,2,3,4,5,6,7], 
+            "day" => [1,2,3,4,5,6,7],
             "weather" => [1,0,1,0,0,1,0],
             "ate" => [1,1,0,0,0,1,0],
             "late" => [0,1,1,0,0,0,1],
