@@ -13,23 +13,12 @@ pub fn entropy(data: LazyFrame, target_name: &str) -> Result<f64> {
             col(&col_name).count().alias("counts"),
             DataType::Float64,
         )])
-        .with_column((col("counts") / col("counts").sum()).alias("prob"));
-    let mut probs = lazy_probs.collect()?;
-    let probs_col_idx = &probs.get_column_index("prob").unwrap();
-    let probs_seq = &probs[*probs_col_idx];
-    let mut log_prob_seq: Series = probs_seq
-        .f64()?
-        .into_iter()
-        .map(|maybe_fl| maybe_fl.map(|fl| fl.log(2.0)))
-        .collect::<Series>();
-    log_prob_seq.rename("prob_log");
-
-    let probs_with_log = probs.with_column(log_prob_seq)?.clone();
-    let row = probs_with_log
-        .lazy()
+        .with_column((col("counts") / col("counts").sum()).alias("prob"))
+        .with_column(col("prob").log(2.0).alias("prob_log"))
         .with_column(col("prob").alias("marginal_entropy") * col("prob_log"))
-        .select(&[col("marginal_entropy").sum()])
-        .collect()?;
+        .select(&[col("marginal_entropy").sum()]);
+
+    let row = lazy_probs.collect()?;
     let almost_neg_entropy = row.get(0).unwrap();
 
     let neg_entropy = extract_numeric(&almost_neg_entropy[0])?;

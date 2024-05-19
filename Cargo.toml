@@ -13,5 +13,6 @@ polars = { version = "0.39.2", features = [
   "diff",
   "is_in",
   "serde",
+  "log",
   "avx512",
 ] }

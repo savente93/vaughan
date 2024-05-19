@@ -3,7 +3,7 @@ use polars::prelude::*;
 
 use crate::utils::extract_numeric;
 
-pub fn compute_error(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
+pub fn with_error(data: LazyFrame, prediction_column: &str, truth_column: &str) -> LazyFrame {
     data.select(&[
         col("*"),
         (col(truth_column) - col(prediction_column)).alias("_err"),
@@ -98,7 +98,7 @@ mod test {
     #[test]
     fn test_skl_mean_squared_error() -> Result<()> {
         assert_eq_fl!(
-            mean_squared_error(compute_error(
+            mean_squared_error(with_error(
                 get_skl_test_predictions().lazy(),
                 "truth",
                 "pred1"
@@ -111,7 +111,7 @@ mod test {
     #[test]
     fn test_root_mean_squared_error() -> Result<()> {
         assert_eq_fl!(
-            root_mean_squared_error(compute_error(
+            root_mean_squared_error(with_error(
                 get_skl_test_predictions().lazy(),
                 "truth",
                 "pred1"
@@ -124,7 +124,7 @@ mod test {
     #[test]
     fn test_skl_mean_absolute_error() -> Result<()> {
         assert_eq_fl!(
-            mean_absolute_error(compute_error(
+            mean_absolute_error(with_error(
                 get_skl_test_predictions().lazy(),
                 "truth",
                 "pred1"
@@ -138,7 +138,7 @@ mod test {
     fn test_skl_mean_absolute_percentage_error() -> Result<()> {
         assert_eq_fl!(
             mean_absolute_percentage_error(
-                compute_error(get_skl_test_predictions().lazy(), "truth", "pred1"),
+                with_error(get_skl_test_predictions().lazy(), "truth", "pred1"),
                 "pred1",
                 "truth"
             )?,
@@ -150,7 +150,7 @@ mod test {
     #[test]
     fn test_skl_median_absolute_error() -> Result<()> {
         assert_eq_fl!(
-            median_absolute_error(compute_error(
+            median_absolute_error(with_error(
                 get_skl_test_predictions().lazy(),
                 "truth",
                 "pred1"
@@ -163,7 +163,7 @@ mod test {
     #[test]
     fn test_skl_max_error() -> Result<()> {
         assert_eq_fl!(
-            max_absolute_error(compute_error(
+            max_absolute_error(with_error(
                 get_skl_test_predictions().lazy(),
                 "truth",
                 "pred1"
@@ -177,7 +177,7 @@ mod test {
     fn test_skl_r2() -> Result<()> {
         assert_eq_fl!(
             r2(
-                compute_error(get_skl_test_predictions().lazy(), "truth", "pred1"),
+                with_error(get_skl_test_predictions().lazy(), "truth", "pred1"),
                 "truth",
                 "pred1"
             )?,
@@ -189,7 +189,7 @@ mod test {
     fn test_skl_explained_variance() -> Result<()> {
         assert_eq_fl!(
             explained_variance(
-                compute_error(get_skl_test_predictions().lazy(), "truth", "pred1"),
+                with_error(get_skl_test_predictions().lazy(), "truth", "pred1"),
                 "truth"
             )?,
             1.0

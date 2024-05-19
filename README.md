@@ -51,7 +51,7 @@ fn main() {
 
 ### Design goals
 
-- Have great testing and documentation. Documentation is boring, but critical to a good user experience. It is also something where I am trying to improve, so this is an important focus of this project.
+- Have great testing and documentation. Documentation is boring, but critical to a good user experience. It is also something where I am trying to improve, so this is an important focus of this project. (I'm working on it)
 - Be fast. Part of why I think Polars and Rust are fertile soil for this is the speed they bring. My goal is to maintain the same speed in subsequent works wherever possible. 
 - Don't be wrong. Scientific computations are complex and subtle, but very critical. If this library is going to be used by anyone for anything of note, it needs to be as correct as possible. Therefore, trying to make sure the code is as robustly tested as possible is important. 
 - Foster a great community. While this is not something I can control directly, part of what attracted me to Rust was the welcoming community. I hope to replicate that here, by being as open to feedback as possible and fostering a welcoming community to all that want to be part of it. 
