@@ -56,3 +56,14 @@ jobs:
         run: cargo test --locked --all-features --all-targets
         env:
           RUSTFLAGS: -D deprecated
+  audit:
+    runs-on: ubuntu-latest
+    name: audit dependencies
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Audit Dependencies
+        uses: actions-rust-lang/audit@v1.2
+            
+      
