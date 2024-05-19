@@ -12,11 +12,17 @@ Vaughan is a Rust library designed to provide fast, reliable, and ergonomic impl
 
 ## Quick start 🚀
 
-Add Vaughan to your `Cargo.toml`:
+Add Vaughan to your `Cargo.toml` mannually:
 
 ```toml
 [dependencies]
 vaughan = "0.1.0"
+```
+
+or by using `cargo add`
+
+```sh
+cargo add vaughan
 ```
 
 Currently, Vaughan is only available for use through Rust, but I am planning to add Python bindings soon.
@@ -62,6 +68,7 @@ I believe that non goals are as important as goals for a good and focused design
 
 Vaughan very young, and currently not even ready to be called an alpha. It is little more than a prototype at this point. Therefore, expect breaking changes basically without warning and lots of missing features. However, I would very much like to expand it. [Feature Requests, Bug Reports](https://github.com/savente93/vaughan/issues), [Pull Requests](https://github.com/savente93/vaughan/pulls), [Questions](https://github.com/savente93/vaughan/discussions), and any other form of constructive feedback is very welcome! This is a spare time project for me, so I can't promise any timeline, but here is a rough outline of the things I am hoping to add: 
 
+- [ ] Comprehensive documentation
 - [ ] Python Bindings
 - [ ] Benchmarks
 - [ ] Statistical calculations
