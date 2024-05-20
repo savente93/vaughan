@@ -3,6 +3,11 @@ name = "vaughan"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.76"
+license = "BSD-3-Clause"
+repository = "https://github.com/savente93/vaughan"
+description = "Implementations of various scientific calculations a-la SciPy in Rust built on Polars."
+keywords = ["dataframe", "scipy", "lazy", "calculations", "statistics"]
+categories = ["mathematics", "science", "concurrency"]
 
 [dependencies]
 polars = { version = "0.39.2", features = [

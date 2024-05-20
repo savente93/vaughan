@@ -1,0 +1,31 @@
+---
+name: Documentation Improvement
+description: Suggest an improvement for the Documentation
+labels: [Documentation, Needs Triage]
+
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      description: What kind of documentation issue is this?
+      label: Kind of issue
+      options:
+        - Docs are wrong
+        - Docs are unclear
+        - Docs are missing
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      description: >
+        Please provide a description of the problem or improvement
+      label: Documentation problem
+    validations:
+      required: true
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      description: >
+        Please explain your suggested fix if applicable
+      label: Suggested fix for documentation
