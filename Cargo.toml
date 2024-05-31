@@ -21,3 +21,7 @@ polars = { version = "0.39.2", features = [
   "log",
   "avx512",
 ] }
+
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "katex-header.html"]

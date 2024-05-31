@@ -3,6 +3,9 @@ use polars::prelude::*;
 
 use crate::utils::extract_numeric;
 
+/// Calulate the Gini Impurity which is defined as
+/// $$Gini(\mathcal{X}) = 1 - \sum_{x\in\mathcal{X}} \mathbb{P}(x)^2$$
+/// \cite{gini}
 pub fn gini_impurity(data: LazyFrame, target_name: &str) -> Result<f64> {
     let col_name = data.schema()?.iter_names().next().unwrap().clone();
 

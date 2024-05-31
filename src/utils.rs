@@ -1,5 +1,18 @@
 use polars::error::{ErrString, PolarsResult as Result};
 use polars::prelude::*;
+
+/// Extract a numeric value from a Polars::prelude::AnyValue
+/// Useful to pull results out of polars data frames when necessary.
+/// ```
+///  # use polars::prelude::*;
+///  # use vaughan::utils::extract_numeric;
+///  # fn main() -> PolarsResult<()> {
+///    let df = df!("x" => [0])?;
+///    let any_value = df.get(0).unwrap()[0].clone();
+///    assert_eq!(extract_numeric(&any_value)?, 0.0);
+/// # Ok(())
+/// # }
+/// ```
 pub fn extract_numeric(a: &AnyValue) -> Result<f64> {
     match a {
         AnyValue::Int8(i) => Ok(*i as f64),

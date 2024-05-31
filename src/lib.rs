@@ -4,6 +4,9 @@
 //! The goal is to implement many commonly used scientific algorithms and
 //! calculations for general usage.
 //!
+//! Calulate the Gini Impurity which is defined as
+//! $$Gini(\mathcal{X}) = 1 - \sum_{x\in\mathcal{X}} \mathbb{P}(x)^2$$
+//!
 //! Polars is a very fast, lazy Dataframe library for rust with a nice,
 //! spark like API. This library attempts to make it more useful
 //! and a bit more applicable by implementing common calculations
@@ -20,7 +23,7 @@
 //!
 //! ```
 //! use polars::prelude::*;
-//! use vaughan::error_metrics::binary_classification::*;
+//! use vaughan::distance::{euclidian , hamming};
 //!
 //! # fn example() -> PolarsResult<()> {
 //!
@@ -43,18 +46,30 @@
 #![warn(unreachable_pub)]
 #![warn(unused_results)]
 
+/// Module implementing various distance calculations such
+/// as euclidian, hamming, or manhattan where the series
+/// represent the vectors
 pub mod distance;
-pub mod error_metrics;
-pub mod information;
-mod utils;
 
+/// Implementations of various common error metrics for evaluating
+/// predictions, such as RSME, MAE and R^2. Useful for both ML and
+/// general statistic work flows
+pub mod error_metrics;
+
+/// Implement varous common information theoretic calculations
+/// such as Shannon Entropy and Gini impurity
+pub mod information;
+
+/// Some utilities to make interacting with Polars in Rust a bit
+/// easier
+pub mod utils;
+
+/// Some testing utilities
 #[cfg(test)]
 pub mod testing;
 
-use distance::euclidian;
-use distance::hamming;
+use crate::utils::extract_numeric;
 use polars::prelude::*;
-
-fn example() -> PolarsResult<()> {
+fn main() -> PolarsResult<()> {
     Ok(())
 }

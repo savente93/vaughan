@@ -1,0 +1,21 @@
+
+[tasks.format]
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--", "--emit=files"]
+
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+dependencies = ["clean"]
+
+[tasks._doc]
+command = "cargo"
+args = ["doc"]
+
+[tasks.doc]
+env = { "RUSTDOCFLAGS" = "--html-in-header katex.html" }
+command = "cargo"
+args = ["doc", "--no-deps", "--open"]
+dependencies = ["_doc"]
